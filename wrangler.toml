@@ -1,0 +1,63 @@
+#:schema node_modules/wrangler/config-schema.json
+# For more details on how to configure Wrangler, refer to:
+# https://developers.cloudflare.com/workers/wrangler/configuration/
+name = "ekart-dolum-iade-dev"
+compatibility_date = "2024-11-15"
+compatibility_flags = [ "nodejs_compat" ]
+account_id = "ccf119a16f7abfd37a26efe65e4a1077"
+main = "src/index.js"
+
+[env.staging]
+name = "traktor-ast-rte-staging"
+
+[observability]
+enabled = true
+
+[[containers]]
+class_name = "FlaskContainer"
+image = "./Dockerfile"
+max_instances = 10
+
+[[durable_objects.bindings]]
+class_name = "FlaskContainer"
+name = "FLASK_CONTAINER"
+
+[[migrations]]
+new_sqlite_classes = [ "FlaskContainer" ]
+tag = "v1"
+
+[[d1_databases]]
+binding = "DAYKO_D1"
+database_name = "dayko_aidat"
+database_id = "ab701183-34b6-4e2d-ae34-0c3bfeb8c46b"
+
+# Smart Placement
+# Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
+# [placement]
+# mode = "smart"
+
+###
+# Bindings
+# Bindings allow your Worker to interact with resources on the Cloudflare Developer Platform, including
+# databases, object storage, AI inference, real-time communication and more.
+# https://developers.cloudflare.com/workers/runtime-apis/bindings/
+###
+
+# Environment Variables
+# https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
+# [vars]
+# MY_VARIABLE = "production_value"
+
+# Note: Use secrets to store sensitive data.
+# https://developers.cloudflare.com/workers/configuration/secrets/
+
+# Static Assets
+# https://developers.cloudflare.com/workers/static-assets/binding/
+# [assets]
+# directory = "./public/"
+# binding = "ASSETS"
+
+[[vpc_services]]
+binding = "12cdd32c9c408e9167320505fdee8fb612339" # name you’ll reference in code
+service_id = "019a9a0b-b4a9-7e53-8b2a-402ee55b9733"
+remote = true # set true when Cloudflare hosts the tunnel
